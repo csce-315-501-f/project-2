@@ -31,7 +31,7 @@ public:
 
 	string board[8][8];
 
-	void light_turn(int column, int row);
+	bool light_turn(int column, int row);
 	void dark_turn();
 
 	bool light_can_move(int column, int row);
@@ -45,6 +45,8 @@ public:
 	void restart();
 	bool game_over();
 	
+    friend ostream& operator<<(ostream& os, Game_board& gb);
+
 private:
 	
 	void populate_board();
@@ -56,12 +58,11 @@ private:
     void init_light();
     void init_dark();
 
-	vector<pair<int, int>> get_light_moves;
+	vector<pair<int, int> > get_light_moves;
 
 	bool do_flip(int x, int y, int xdir, int ydir, int flip);
 	bool do_flip_wrapper(int x, int y, int flip); // flip = 0 means just looking for possible moves; 1 flip will happen
     
 };
 
-ostream& operator<<(ostream& os, Game_board& gb);
 string int_to_string(int n);

@@ -6,6 +6,7 @@ import thread
 import time
 import sys
 import re
+from subprocess import Popen, PIPE
  
 # Setup socket for global usage
 HOST = ""
@@ -26,6 +27,8 @@ class state_o:
         self.diff = "0"
         self.ip = ""
         self.port = 0
+        self.diff2 = "0"
+        self.started = False
     def __repr__(self):
         if self.port > 0:
             return "%s, %s, %s, %s, %s" % (self.side, self.mode, self.diff, self.ip, self.port)
@@ -34,6 +37,21 @@ class state_o:
         if self.port > 0:
             return "%s, %s, %s, %s, %s" % (self.side, self.mode, self.diff, self.ip, self.port)
         return "%s, %s, %s" % (self.side, self.mode, self.diff)
+    def start(self):
+        self.proc = Popen('main', shell=False, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        self.started = True
+    def end(self):
+        if self.started:
+            self.proc.kill()
+    def comm(self, info=""):
+        return self.proc.communicate(info)[0]
+    def send(self,info):
+        if self.started:
+            self.proc.stdin.write("%s\n" % info)
+    def read(self):
+        if self.started:
+            return self.proc.stdout.readline()[:-1]
+        return ""
 
 
 #############################
@@ -46,27 +64,36 @@ def setside(tag, side):
 
 def setmode(tag, mode):
     sys.stdout.write("Game %d set to %s\n" % (tag, mode))
+    game_states[tag].mode = mode
     if "AI-AI" in mode:
         ip_addr = re.findall(ip_r,mode)[0][0]
         port = int(re.findall(port_r,mode)[0][0])
+        diff = re.findall(difficulty_r,mode)[0][0]
+        diff2 = re.findall(difficulty_r,mode)[1][0]
+        game_states[tag].mode = "AI-AI"
         game_states[tag].ip = ip_addr
         game_states[tag].port = port
-    game_states[tag].mode = mode
+        game_states[tag].diff = diff
+        game_states[tag].diff2 = diff2
 
 def setdifficulty(tag, level):
     sys.stdout.write("Game %d set to %s\n" % (tag, level))
     game_states[tag].diff = level
 
 def doexit(tag):
+    game_states[tag].end()
     pass
 
 def dodisplay(tag):
+    sys.stdout.write('%s\n'%game_states[tag])
     pass
 
 def doundo(tag):
     pass
 
 def domove(tag, move):
+    game_states[tag].send(move)
+    sys.stdout.write("%s%s\n"%(game_states[tag].read(),game_states[tag].read()))
     return True
 
 
@@ -74,67 +101,61 @@ def domove(tag, move):
 # Command Information #
 #######################
 
+# Format regex
 ip_r = r'((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))'
 port_r = r'(([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))'
+difficulty_r = r'\s*((EASY)|(MEDIUM)|(HARD))\s*'
 
-sides =     [
-        "WHITE",
-        "BLACK"
-        ]
-
-commands =     [
-        "EXIT",
-        "DISPLAY",
-        "UNDO",
-        ]
-
-difficulties =     [
-        "EASY",
-        "MEDIUM",
-        "HARD"
-        ]
-
-gamemodes =    [
-        r"HUMAN-AI",
-        r"AI-AI %s %s" % (ip_r, port_r)
-        ]
-
+# Command regex
 display_r = r'^\s*DISPLAY\s*'
 exit_r = r'^\s*EXIT\s*'
 undo_r = r'^\s*UNDO\s*'
 move_r = r'^\s*[A-H]\s*[0-8]\s*$'
 comment_r = r'^\s*;.*'
 
+# Settings regex
+sides =     [
+        r'\s*WHITE\s*',
+        r'\s*BLACK\s*'
+        ]
+
+difficulties =     [
+        r'\s*EASY\s*',
+        r'\s*MEDIUM\s*',
+        r'\s*HARD\s*'
+        ]
+
+gamemodes =    [
+        r"\s*HUMAN-AI\s*",
+        r"\s*AI-AI\s+%s\s+%s\s+%s\s+%s" % (ip_r, port_r, difficulty_r, difficulty_r)
+        ]
 
 # State machine constants
-CHOOSESIDE=0
-CHOOSEMODE=1
-CHOOSEDIFFICULTY=2
-GAMEPLAY=3
 tag_count = 0         # game info counter
 
 # Perform a check for correct command structure
-def check(tag, msg, state, curr, container, funct, conn, fail):
-    if state == curr:
-        for item in container:
-            if re.match(item,msg):
-                funct(tag,msg)
-                conn.send("OK\n")
-                return True
-        conn.send("ILLEGAL\n;%s\n" % fail)
+def check(tag, msg, container, funct):
+    for item in container:
+        if re.match("^%s$" % item,msg):
+            funct(tag,msg)
+            return True
     return False
 
 # Run the game for an individual connection as a thread
 def run(conn):
     def game():
 
-        # Assign a tag and start state machine
+        # Assign a tag and start associated thread
         global tag_count
         tag = tag_count
         tag_count += 1
-        state = CHOOSESIDE
         conn.send("WELCOME\n")
         conn.setblocking(True)
+
+        hasSide = False
+        hasMode = False
+        hasDiff = False
+        started = False
 
         sys.stdout.write("Creating game %d\n" % tag)
         global game_states
@@ -145,57 +166,68 @@ def run(conn):
             try:
                 msg = conn.recv(1024).strip()
                 msg = msg.upper()
+
+                # Check for comments
+                if re.match(comment_r,msg):
+                    continue
+
+                # EXIT
+                elif re.match(exit_r,msg):
+                    conn.send("OK\n")
+                    doexit(tag)
+                    conn.close()
+                    sys.stdout.write("Game %d ended\n" % tag)
+                    return 0
+
+                # DISPLAY
+                elif re.match(display_r,msg):
+                    conn.send("OK\n")
+                    dodisplay(tag)
+                    continue
+
+                # UNDO
+                elif re.match(undo_r,msg):
+                    conn.send("OK\n")
+                    doundo(tag)
+                    continue
+
+                # EXECUTE A MOVE
+                elif started:
+                    if (re.match(move_r,msg) and domove(tag,msg)):
+                        conn.send("OK\n")
+                    else:
+                        conn.send("ILLEGAL\n;Bad move\n")
+                        continue
+
+                # CHOOSE MODE: HUMAN-AI, AI-AI
+                elif check(tag,msg,gamemodes,setmode):
+                    conn.send("OK\n")
+                    hasMode = True
+
+                # CHOOSE SIDE: BLACK, WHITE
+                elif check(tag,msg,sides,setside):
+                    conn.send("OK\n")
+                    hasSide = True
+
+                # CHOOSE DIFFICUTLY: EASY, MEDIUM, HARD
+                elif check(tag,msg,difficulties,setdifficulty):
+                    conn.send("OK\n")
+                    hasDiff = True
+
+                # Unknown command given or settings not satisfied
+                else:
+                    conn.send("ILLEGAL\n;Please enter all settings\n")
+
+                # START GAME
+                if (not started and hasMode and hasSide and hasDiff):
+                    started = True
+                    sys.stdout.write("Game %d started\n" % tag)
+                    conn.send(";Game started\n")
+                    game_states[tag].start()
+
             except socket.error:
-                continue
-
-            # Check for comments
-            if re.match(comment_r,msg):
-                continue
-
-            # EXIT
-            elif re.match(exit_r,msg):
-                conn.send("OK\n")
-                doexit(tag)
-                conn.close()
                 sys.stdout.write("Game %d ended\n" % tag)
                 return 0
-
-            # DISPLAY
-            elif re.match(display_r,msg):
-                print game_states[tag]
-                conn.send("OK\n")
-                dodisplay(tag)
-                continue
-
-            # UNDO
-            elif re.match(undo_r,msg):
-                conn.send("OK\n")
-                if state < GAMEPLAY:
-                    state -= 1
-                    if state < 0:
-                        state = 0
-                else:
-                    doundo(tag)
-                continue
-
-            # CHOOSE SIDE: BLACK, WHITE
-            if check(tag,msg,state,CHOOSESIDE,sides,setside,conn,"Must choose a side"):
-                state += 1
-
-            # CHOOSE MODE: HUMAN-AI, AI-AI
-            elif check(tag,msg,state,CHOOSEMODE,gamemodes,setmode,conn,"Must choose a mode"):
-                state += 1
-
-            # CHOOSE DIFFICUTLY: EASY, MEDIUM, HARD
-            elif check(tag,msg,state,CHOOSEDIFFICULTY,difficulties,setdifficulty,conn,"Must choose a difficulty"):
-                state += 1
-
-            # EXECUTE A MOVE
-            elif state == GAMEPLAY:
-                if (re.match(move_r,msg) and domove(tag,msg)):
-                    conn.send("OK\n")
-                else:
-                    conn.send("ILLEGAL\n;Bad move\n")
             
     # Start game thread
     thread.start_new_thread(game, ())

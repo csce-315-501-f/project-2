@@ -11,10 +11,13 @@ string int_to_string(int n)
 
 ostream& operator<<(ostream& os, Game_board& gb)
 {
-	for (int i=0; i < 8; ++i) {
-		for (int j=0; j < 8; ++j) os << gb.board[i][j];
-		os << endl;
+    cout << ";  _ _ _ _ _ _ _ _ " << endl;
+	for (int i = 0; i <= ROWS; i++) {
+		cout << ";" << i+1 << "|";
+        gb.print_row(i);
+        cout << endl;
 	}
+	cout << ";  a b c d e f g h \n" <<endl;;
 	return os;
 }
 
@@ -50,7 +53,7 @@ void Game_board::populate_board() {
 
 void Game_board::update_board()
 {
-	populate_board();
+	//populate_board();
 
 }
 
@@ -58,7 +61,9 @@ void Game_board::update_board()
  Takes a coordinate as an input and checks if it's a valid move 
  If it is it flips the corresponding pieces
  */
-void Game_board::light_turn(int column, int row) {
+bool Game_board::light_turn(int column, int row) {
+    if (board[column][row-1] == "@" || board[column][row-1] == "O") 
+        return false;
     board[column][row-1] = "O";
     int flip = 1;
     if (do_flip_wrapper(column,row, flip))
@@ -68,8 +73,9 @@ void Game_board::light_turn(int column, int row) {
     else {
     	board[column][row-1] = "_";
     	update_board();
-        cout << "Invalid Move!" << endl;
+        return false;
     }
+    return true;
 }
 
 /*
@@ -238,19 +244,69 @@ bool Game_board::do_flip_wrapper(int x, int y, int flip) {
     do_flip(x,y,1,1,flip) ||
     do_flip(x,y,1,0,flip) ||
     do_flip(x,y,1,-1,flip) ||
-    do_flip(x,y,-1,0,flip) ||
+    do_flip(x,y,0,-1,flip) ||
     do_flip(x,y,-1,-1,flip);
 }
 
+void setdiff(char diff) {
+    NULL;
+}
+
+int convert(char let) {
+    switch (let) {
+        case 'A':
+            return A;
+        case 'B':
+            return B;
+        case 'C':
+            return C;
+        case 'D':
+            return D;
+        case 'E':
+            return E;
+        case 'F':
+            return F;
+        case 'G':
+            return G;
+    }
+    return 0;
+}
 
 int main () {
     Game_board gb;
-    gb.available_moves();
-    gb.light_turn(E, 3);
-    gb.dark_turn();
-    gb.available_moves();
-    gb.light_turn(C, 5);
-    gb.dark_turn();
+    char comm;
+    cout << gb;
+    while (comm != '@') {
+        cin >> comm;
+        switch (comm) {
+        case 'e':
+        case 'm':
+        case 'h':
+            setdiff(comm);
+            break;
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+            int i;
+            cin >> i;
+            if (gb.light_turn(convert(comm),i)) {
+                gb.dark_turn();
+                cout << gb;
+            }
+            else cout << "I" << endl;
+        }
+    }
+
+    //gb.available_moves();
+    //gb.light_turn(E, 3);
+    //gb.dark_turn();
+    //gb.available_moves();
+    //gb.light_turn(C, 5);
+    //gb.dark_turn();
     //gb.available_moves();
     //gb.light_turn(D, 2);
     //gb.available_moves();
