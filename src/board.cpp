@@ -232,14 +232,14 @@ void Game_board::available_moves(){
  Takes a coordinate and checks all the directions for possible flips
  */
 bool Game_board::do_flip_wrapper(int x, int y, int flip) {
-   return  do_flip(x,y,-1,0,flip) ||
-    do_flip(x,y,-1,1,flip) ||
-    do_flip(x,y,0,1,flip) ||
-    do_flip(x,y,1,1,flip) ||
-    do_flip(x,y,1,0,flip) ||
-    do_flip(x,y,1,-1,flip) ||
-    do_flip(x,y,-1,0,flip) ||
-    do_flip(x,y,-1,-1,flip);
+   return  do_flip(x,y,-1,0,flip)  ||
+           do_flip(x,y,-1,1,flip)  ||
+           do_flip(x,y,-1,-1,flip) ||
+           do_flip(x,y,0,1,flip)   ||
+           do_flip(x,y,0,-1,flip)  ||
+           do_flip(x,y,1,1,flip)   ||
+           do_flip(x,y,1,0,flip)   ||
+           do_flip(x,y,1,-1,flip);
 }
 
 
@@ -249,8 +249,8 @@ int main () {
     gb.light_turn(E, 3);
     gb.dark_turn();
     gb.available_moves();
-    gb.light_turn(C, 5);
-    gb.dark_turn();
+    // gb.light_turn(C, 5);
+    // gb.dark_turn();
     //gb.available_moves();
     //gb.light_turn(D, 2);
     //gb.available_moves();

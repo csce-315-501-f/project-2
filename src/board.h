@@ -56,7 +56,7 @@ private:
     void init_light();
     void init_dark();
 
-	vector<pair<int, int>> get_light_moves;
+	vector<pair<int, int> > get_light_moves;
 
 	bool do_flip(int x, int y, int xdir, int ydir, int flip);
 	bool do_flip_wrapper(int x, int y, int flip); // flip = 0 means just looking for possible moves; 1 flip will happen
