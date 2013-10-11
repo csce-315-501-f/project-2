@@ -238,6 +238,7 @@ void Game_board::available_moves(){
  Takes a coordinate and checks all the directions for possible flips
  */
 bool Game_board::do_flip_wrapper(int x, int y, int flip) {
+<<<<<<< HEAD
    return  do_flip(x,y,-1,0,flip) ||
     do_flip(x,y,-1,1,flip) ||
     do_flip(x,y,0,1,flip) ||
@@ -246,6 +247,16 @@ bool Game_board::do_flip_wrapper(int x, int y, int flip) {
     do_flip(x,y,1,-1,flip) ||
     do_flip(x,y,0,-1,flip) ||
     do_flip(x,y,-1,-1,flip);
+=======
+   return  do_flip(x,y,-1,0,flip)  ||
+           do_flip(x,y,-1,1,flip)  ||
+           do_flip(x,y,-1,-1,flip) ||
+           do_flip(x,y,0,1,flip)   ||
+           do_flip(x,y,0,-1,flip)  ||
+           do_flip(x,y,1,1,flip)   ||
+           do_flip(x,y,1,0,flip)   ||
+           do_flip(x,y,1,-1,flip);
+>>>>>>> 8eef10055c6d1035c1819882e681947f04c29d13
 }
 
 void setdiff(char diff) {
@@ -274,6 +285,7 @@ int convert(char let) {
 
 int main () {
     Game_board gb;
+<<<<<<< HEAD
     char comm;
     cout << gb;
     while (comm != '@') {
@@ -307,6 +319,14 @@ int main () {
     //gb.available_moves();
     //gb.light_turn(C, 5);
     //gb.dark_turn();
+=======
+    gb.available_moves();
+    gb.light_turn(E, 3);
+    gb.dark_turn();
+    gb.available_moves();
+    // gb.light_turn(C, 5);
+    // gb.dark_turn();
+>>>>>>> 8eef10055c6d1035c1819882e681947f04c29d13
     //gb.available_moves();
     //gb.light_turn(D, 2);
     //gb.available_moves();
