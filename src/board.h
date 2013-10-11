@@ -65,8 +65,4 @@ private:
     
 };
 
-<<<<<<< HEAD
-=======
-ostream& operator<<(ostream& os, Game_board& gb);
->>>>>>> 8eef10055c6d1035c1819882e681947f04c29d13
 string int_to_string(int n);
