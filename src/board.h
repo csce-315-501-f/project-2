@@ -31,20 +31,13 @@ public:
 
 	string board[8][8];
 
-	class Invalid_input	{};
-	class Invalid_move	{};
-	class No_moves		{};
-	class User_quit		{};
-	class User_undo		{};
-	class Game_over		{};
-
 	void light_turn(int column, int row);
 	void dark_turn();
 
 	bool light_can_move(int column, int row);
-	bool dark_can_move();
 
 	string check_input(string s);
+    void available_moves();
 
 	void show_help();
 
@@ -57,22 +50,17 @@ private:
 	void populate_board();
 	void update_board();
 	void print_row(int row);
-	void print_column(int column);
+	//void print_column(int column);
 	
 	void init_board();
     void init_light();
     void init_dark();
 
-	vector<int> get_light_moves(int index);
-	vector<int> get_dark_moves();
-	vector<int> check_moves(vector<int> pos);
+	vector<pair<int, int>> get_light_moves;
 
-	int spot_on_board(int row, int column);
-	int spot_on_board(vector<int> pos);
-	vector<int> spot_on_board(int space);
-
-	bool is_valid(vector<int> pos);
-	bool is_occupied(vector<int> pos);
+	bool do_flip(int x, int y, int xdir, int ydir, int flip);
+	bool do_flip_wrapper(int x, int y, int flip); // flip = 0 means just looking for possible moves; 1 flip will happen
+    
 };
 
 ostream& operator<<(ostream& os, Game_board& gb);
