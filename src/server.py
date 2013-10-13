@@ -38,16 +38,33 @@ class state_o:
             return "%s, %s, %s, %s, %s" % (self.side, self.mode, self.diff, self.ip, self.port)
         return "%s, %s, %s" % (self.side, self.mode, self.diff)
     def start(self):
-        self.proc = Popen('main', shell=False, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        self.proc = Popen('board', shell=False, stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.started = True
+        #self.send(self.diff)
     def end(self):
         if self.started:
+            self.send("@")
             self.proc.kill()
     def comm(self, info=""):
         return self.proc.communicate(info)[0]
     def send(self,info):
         if self.started:
             self.proc.stdin.write("%s\n" % info)
+    def flush(self):
+        print "flushing"
+        self.proc.communicate()
+        print "dont"
+        return
+        firstempty = False
+        while True:
+            f = self.proc.stdout.readline()
+            print "hi\n"
+            if len(f) <= 1:
+                if firstempty:
+                    return
+                firstempty = True
+            else:
+                firstempty = False
     def read(self):
         if self.started:
             return self.proc.stdout.readline()[:-1]
@@ -78,22 +95,33 @@ def setmode(tag, mode):
 
 def setdifficulty(tag, level):
     sys.stdout.write("Game %d set to %s\n" % (tag, level))
-    game_states[tag].diff = level
+    game_states[tag].diff = level[0]
 
 def doexit(tag):
     game_states[tag].end()
     pass
 
-def dodisplay(tag):
-    sys.stdout.write('%s\n'%game_states[tag])
-    pass
+def dodisplay(tag,conn):
+    game_states[tag].send("d")
+    sys.stdout.write("Display game %d\n" % tag)
+    for i in range(10):
+        info = "%s\n" % game_states[tag].read()
+        conn.send(info)
+        sys.stdout.write(info)
 
 def doundo(tag):
-    pass
+    game_states[tag].send("u")
+    resp = game_state[tag].read()
+    return "U" in resp
 
 def domove(tag, move):
     game_states[tag].send(move)
-    sys.stdout.write("%s%s\n"%(game_states[tag].read(),game_states[tag].read()))
+    sys.stdout.write("Game %d: Sending move %s\n" % (tag,move))
+    resp = game_states[tag].read()
+    if "I" in resp:
+        sys.stdout.write("Game %d: Bad move\n" % tag)
+        return False
+    sys.stdout.write("%s\n"%resp)
     return True
 
 
@@ -152,7 +180,7 @@ def run(conn):
         conn.send("WELCOME\n")
         conn.setblocking(True)
 
-        hasSide = False
+        hasSide = True
         hasMode = False
         hasDiff = False
         started = False
@@ -182,13 +210,14 @@ def run(conn):
                 # DISPLAY
                 elif re.match(display_r,msg):
                     conn.send("OK\n")
-                    dodisplay(tag)
+                    dodisplay(tag,conn)
                     continue
 
                 # UNDO
                 elif re.match(undo_r,msg):
                     conn.send("OK\n")
-                    doundo(tag)
+                    if not doundo(tag):
+                        conn.send(";Nothing to undo\n")
                     continue
 
                 # EXECUTE A MOVE
@@ -205,9 +234,9 @@ def run(conn):
                     hasMode = True
 
                 # CHOOSE SIDE: BLACK, WHITE
-                elif check(tag,msg,sides,setside):
-                    conn.send("OK\n")
-                    hasSide = True
+                #elif check(tag,msg,sides,setside):
+                #    conn.send("OK\n")
+                #    hasSide = True
 
                 # CHOOSE DIFFICUTLY: EASY, MEDIUM, HARD
                 elif check(tag,msg,difficulties,setdifficulty):

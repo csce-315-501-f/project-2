@@ -17,7 +17,7 @@ ostream& operator<<(ostream& os, Game_board& gb)
         gb.print_row(i);
         cout << endl;
 	}
-	cout << ";  a b c d e f g h \n" <<endl;;
+	cout << ";  a b c d e f g h " <<endl;;
 	return os;
 }
 
@@ -54,6 +54,7 @@ void Game_board::populate_board() {
 void Game_board::update_board()
 {
 	//populate_board();
+
 }
 
 void Game_board::save_board_state() {
@@ -252,14 +253,16 @@ void Game_board::available_moves(){
  Takes a coordinate and checks all the directions for possible flips
  */
 bool Game_board::do_flip_wrapper(int x, int y, int flip) {
-   return  do_flip(x,y,-1,0,flip) ||
-    do_flip(x,y,-1,1,flip) ||
-    do_flip(x,y,0,1,flip) ||
-    do_flip(x,y,1,1,flip) ||
-    do_flip(x,y,1,0,flip) ||
-    do_flip(x,y,1,-1,flip) ||
-    do_flip(x,y,0,-1,flip) ||
-    do_flip(x,y,-1,-1,flip);
+    bool f[8];
+    f[0] = do_flip(x,y,-1,0,flip);
+    f[1] = do_flip(x,y,-1,1,flip);
+    f[2] = do_flip(x,y,-1,-1,flip);
+    f[3] = do_flip(x,y,0,1,flip);
+    f[4] = do_flip(x,y,0,-1,flip);
+    f[5] = do_flip(x,y,1,1,flip);
+    f[6] = do_flip(x,y,1,0,flip);
+    f[7] = do_flip(x,y,1,-1,flip);
+    return f[0] || f[1] || f[2] || f[3] || f[4] || f[5] || f[6] || f[7];
 }
 
 void setdiff(char diff) {
@@ -282,14 +285,16 @@ int convert(char let) {
             return F;
         case 'G':
             return G;
+        case 'H':
+            return H;
     }
     return 0;
 }
 
 int main () {
     Game_board gb;
+    srand(time(0));
     char comm;
-    cout << gb;
     while (comm != '@') {
         cin >> comm;
         switch (comm) {
@@ -298,6 +303,12 @@ int main () {
         case 'h':
             setdiff(comm);
             break;
+        case 'd':
+            cout << gb;
+            break;
+        case 'u':
+            cout << (gb.undo()?"G":"B") << endl;
+            break;
         case 'A':
         case 'B':
         case 'C':
@@ -305,11 +316,12 @@ int main () {
         case 'E':
         case 'F':
         case 'G':
+        case 'H':
             int i;
             cin >> i;
             if (gb.light_turn(convert(comm),i)) {
+                cout << "G" << endl;
                 gb.dark_turn();
-                cout << gb;
             }
             else cout << "I" << endl;
         }
