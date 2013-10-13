@@ -65,10 +65,8 @@ void Game_board::save_board_state() {
 
 bool Game_board::undo() {
     if (board_states.size() <= 0) return false;
-    board_states.pop(); // remove the top because it is the current move
     board = board_states.top();
-    board_states.pop();
-    update_board();
+    board_states.pop(); // remove the top because it is the current move
     return true;
 }
 
@@ -77,6 +75,7 @@ bool Game_board::undo() {
  If it is it flips the corresponding pieces
  */
 bool Game_board::light_turn(int column, int row) {
+    save_board_state();
     if (board[column][row-1] == "@" || board[column][row-1] == "O") 
         return false;
     board[column][row-1] = "O";
@@ -103,13 +102,8 @@ void Game_board::dark_turn() {
             if (board[column][row] != "O" && board[column][row] != "@" ) {
                 board[column][row] = "@";
                 if (do_flip_wrapper(column,row+1, flip))
-                {
                     get_dark_moves.push_back(pair<int,int>(column,row+1));
-                    board[column][row] = "_";
-                }
-                else {
-                    board[column][row] = "_";
-                }
+                board[column][row] = "_";
             }
         }
     }
@@ -117,9 +111,7 @@ void Game_board::dark_turn() {
     int move = rand() % get_dark_moves.size();
     //cout << "Column: " <<get_dark_moves[move].first << " Row: "<<get_dark_moves[move].second << endl;
     board[get_dark_moves[move].first][get_dark_moves[move].second-1] = "@";
-    if (do_flip_wrapper(get_dark_moves[move].first,get_dark_moves[move].second, 1))
-    {
-        save_board_state();
+    if (do_flip_wrapper(get_dark_moves[move].first,get_dark_moves[move].second, 1)) {
     	update_board();
     }
     else {

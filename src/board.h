@@ -30,7 +30,6 @@ public:
 		board = tempBoard;
 		init_dark();
 		init_light();
-		save_board_state();
 		update_board();
 	}
 

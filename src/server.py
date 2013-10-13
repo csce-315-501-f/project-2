@@ -111,8 +111,8 @@ def dodisplay(tag,conn):
 
 def doundo(tag):
     game_states[tag].send("u")
-    resp = game_state[tag].read()
-    return "U" in resp
+    resp = game_states[tag].read()
+    return "G" in resp
 
 def domove(tag, move):
     game_states[tag].send(move)
