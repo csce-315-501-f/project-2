@@ -1,0 +1,40 @@
+README
+
+server.py:
+
+    IMPORTANT:
+    In order to play a game, you must first compile the board.cpp file into an executable
+    named 'board' using the following command:
+        g++ board.cpp -o board
+    Failure to do so will result in the server not being able to run the board backend process.
+
+    To start the server use the following command:
+        python server.py
+    If you set the executable bit on the server.py file you can just use:
+        ./server.py
+    The server starts by default on port 8888 but you can change that by providing an argument
+    after server.py. I.E:
+        ./server.py 8989
+    will set the server to start on port 8989
+
+
+To connect and play:
+    Use telnet to connect to the server. If the server is running on unix.cs.tamu.edu on the default
+    port you would use the following command:
+        telnet unix.cs.tamu.edu 8888
+    The server will greet you will the "WELCOME" message in response. At this time you must enter
+    your game settings. When all settings are complete the server will respond with a comment noting
+    that the game has started. You will always be the "O" piece and will always go first.
+
+    Note: all commands are case INSENSITIVE
+
+    GAME SETTINGS:
+    Difficulty:         EASY | MEDIUM | HARD
+    Mode:               Human-ai | AI-AI IP-addr port difficulty difficulty
+
+    IN GAME COMMANDS:
+    Move:                   [A-H][1-8]
+    Display the board:      DISPLAY
+    Undo your last move:    UNDO
+    Exit game:              EXIT
+
