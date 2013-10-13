@@ -54,7 +54,21 @@ void Game_board::populate_board() {
 void Game_board::update_board()
 {
 	//populate_board();
+}
 
+void Game_board::save_board_state() {
+    // board state is saved after every DARK turn, so that
+    // the board can be reset to the last time the player was able to play
+    board_states.push(board);
+}
+
+bool Game_board::undo() {
+    if (board_states.size() <= 0) return false;
+    board_states.pop(); // remove the top because it is the current move
+    board = board_states.top();
+    board_states.pop();
+    update_board();
+    return true;
 }
 
 /*
@@ -66,8 +80,7 @@ bool Game_board::light_turn(int column, int row) {
         return false;
     board[column][row-1] = "O";
     int flip = 1;
-    if (do_flip_wrapper(column,row, flip))
-    {
+    if (do_flip_wrapper(column,row, flip)) {
     	update_board();
     }
     else {
@@ -105,6 +118,7 @@ void Game_board::dark_turn() {
     board[get_dark_moves[move].first][get_dark_moves[move].second-1] = "@";
     if (do_flip_wrapper(get_dark_moves[move].first,get_dark_moves[move].second, 1))
     {
+        save_board_state();
     	update_board();
     }
     else {

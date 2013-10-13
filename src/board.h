@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <sstream>
 #include <stdlib.h>
+#include <stack>
 
 #define ROWS 7
 #define COLUMNS 7
@@ -24,15 +25,22 @@ class Game_board {
 public:
 
 	Game_board() {
+		vector<string> tempRow(8,"_");
+		vector< vector<string> > tempBoard(8,tempRow);
+		board = tempBoard;
 		init_dark();
 		init_light();
+		save_board_state();
 		update_board();
 	}
 
-	string board[8][8];
+	// string board[8][8];
+	vector< vector<string> > board;
+	stack<vector<vector<string> > > board_states;
 
 	bool light_turn(int column, int row);
 	void dark_turn();
+	bool undo(); // return true if successfull, or false if there is nothing to undo
 
 	bool light_can_move(int column, int row);
 
@@ -57,6 +65,8 @@ private:
 	void init_board();
     void init_light();
     void init_dark();
+
+    void save_board_state(); // saves the current board state to board_states stack
 
 	vector<pair<int, int> > get_light_moves;
 
