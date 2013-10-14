@@ -133,8 +133,10 @@ def domove(tag, move):
         sys.stdout.write("Game %d: Player lose\n" % tag)
         game_states[tag].end()
         return "Loss"
-    sys.stdout.write("%s\n"%resp)
-    return "Good"
+    move = chr(ord(resp[0]) + 17)
+    move = move + resp[1]
+    sys.stdout.write("%s\n"%move)
+    return move
 
 
 #######################
@@ -242,13 +244,17 @@ def run(conn):
                         conn.send("OK\n")
                         if "W" in res:
                             conn.send(";You won!\n")
+                            conn.close()
                             return 0
                         elif "T" in res:
                             conn.send(";You tied!\n")
+                            conn.close()
                             return 0
                         elif "L" in res:
                             conn.send(";You lost!\n")
+                            conn.close()
                             return 0
+                        conn.send("%s\n" % res)
                     else:
                         conn.send("ILLEGAL\n;Unknown command\n")
                         continue

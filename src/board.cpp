@@ -158,7 +158,7 @@ vector<pair<int, int> > Game_board::get_moves(string turn) {
 /*
  Looks for all the possible moves and chooses one randomly
  */
-void Game_board::dark_turn() {
+pair<int,int> Game_board::dark_turn() {
     int flip = 0;
     vector< pair<int, int> > get_dark_moves;
     get_dark_moves = get_moves(BLACK);
@@ -166,7 +166,7 @@ void Game_board::dark_turn() {
     //cout << get_dark_moves.size() << endl;
 
     // skip turn if no moves
-    if (get_dark_moves.size() <= 0) return;
+    if (get_dark_moves.size() <= 0) return pair<int,int>();
 
     int move = rand() % get_dark_moves.size();
     
@@ -175,11 +175,12 @@ void Game_board::dark_turn() {
     board[get_dark_moves[move].first][get_dark_moves[move].second-1] = BLACK;
     if (do_flip_wrapper(get_dark_moves[move].first,get_dark_moves[move].second, 1)) {
     	update_board();
+        return get_dark_moves[move];
     }
     else {
     	board[get_dark_moves[move].first][get_dark_moves[move].second-1] = EMPTY;
     	update_board();
-        cout << "Invalid Move!" << endl;
+        //cout << "Invalid Move!" << endl;
     }
 }
 
@@ -386,9 +387,9 @@ int main () {
                     cout << "L" << endl;
                     return 0;
                 }
-                gb.dark_turn();
+                pair<int,int> m = gb.dark_turn();
                 while (!gb.can_move(WHITE)) {
-                    gb.dark_turn();
+                    m = gb.dark_turn();
                     switch (gb.has_won(BLACK)) {
                     case 'w':
                         cout << "L" << endl; 
@@ -401,7 +402,7 @@ int main () {
                         return 0;
                     }
                 }
-                cout << "G" << endl;
+                cout << m.first << m.second << endl;
             }
             else cout << "I" << endl;
         }

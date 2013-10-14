@@ -43,7 +43,7 @@ public:
 	stack<vector<vector<string> > > board_states;
 
 	bool light_turn(int column, int row);
-	void dark_turn();
+	pair<int,int> dark_turn();
 	bool undo(); // return true if successfull, or false if there is nothing to undo
     vector<pair<int, int> > get_moves(string turn);
     char has_won(string turn); // returns l for loss, t for tie, w for win, and n for game not over
