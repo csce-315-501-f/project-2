@@ -101,6 +101,12 @@ int Game_board::pieces(string turn) {
     return cnt;
 }
 
+bool Game_board::can_move(string turn) {
+    vector<pair<int, int> > moves;
+    moves = get_moves(turn);
+    return moves.size() > 0;
+}
+
 char Game_board::has_won(string turn) {
 
     // check if no moves are left on the board
@@ -158,6 +164,9 @@ void Game_board::dark_turn() {
     get_dark_moves = get_moves(BLACK);
     
     //cout << get_dark_moves.size() << endl;
+
+    // skip turn if no moves
+    if (get_dark_moves.size() <= 0) return;
 
     int move = rand() % get_dark_moves.size();
     
@@ -378,16 +387,19 @@ int main () {
                     return 0;
                 }
                 gb.dark_turn();
-                switch (gb.has_won(BLACK)) {
-                case 'w':
-                    cout << "L" << endl; 
-                    return 0;
-                case 't':
-                    cout << "T" << endl;
-                    return 0;
-                case 'l':
-                    cout << "W" << endl;
-                    return 0;
+                while (!gb.can_move(WHITE)) {
+                    gb.dark_turn();
+                    switch (gb.has_won(BLACK)) {
+                    case 'w':
+                        cout << "L" << endl; 
+                        return 0;
+                    case 't':
+                        cout << "T" << endl;
+                        return 0;
+                    case 'l':
+                        cout << "W" << endl;
+                        return 0;
+                    }
                 }
                 cout << "G" << endl;
             }

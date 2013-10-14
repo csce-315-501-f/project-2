@@ -48,6 +48,7 @@ public:
     vector<pair<int, int> > get_moves(string turn);
     char has_won(string turn); // returns l for loss, t for tie, w for win, and n for game not over
 
+    bool can_move(string turn);
 	bool light_can_move(int column, int row);
 
 	string check_input(string s);
