@@ -2,13 +2,6 @@
 
 using namespace std;
 
-string int_to_string(int n)
-{
-	stringstream s;
-	s << n;
-	return s.str();
-}
-
 ostream& operator<<(ostream& os, Game_board& gb)
 {
     cout << ";  _ _ _ _ _ _ _ _ " << endl;
@@ -21,16 +14,12 @@ ostream& operator<<(ostream& os, Game_board& gb)
 	return os;
 }
 
-void Game_board::init_dark()
+void Game_board::init_board()
 {
     board [D][3] = WHITE;
-    board [E][4] = WHITE;
-}
-
-void Game_board::init_light()
-{
     board [D][4] = BLACK;
     board [E][3] = BLACK;
+    board [E][4] = WHITE;
 }
 
 void Game_board::print_row(int row) {
@@ -38,10 +27,9 @@ void Game_board::print_row(int row) {
 		if (board[i][row] == "") board[i][row] = EMPTY;
 		cout << board[i][row] << "|";
 	}
-
 }
 
-void Game_board::populate_board() {
+/*void Game_board::populate_board() {
 	cout << ";  _ _ _ _ _ _ _ _ " << endl;
 	for (int i = 0; i <= ROWS; i++) {
 		cout << ";" << i+1 << "|";
@@ -49,13 +37,7 @@ void Game_board::populate_board() {
         cout << endl;
 	}
 	cout << ";  a b c d e f g h \n" <<endl;;
-}
-
-void Game_board::update_board()
-{
-	//populate_board();
-
-}
+}*/
 
 void Game_board::save_board_state() {
     // board state is saved after every DARK turn, so that
@@ -72,7 +54,7 @@ bool Game_board::undo() {
 
 /*
  Takes a coordinate as an input and checks if it's a valid move 
- If it is it flips the corresponding pieces
+ If it is, it flips the corresponding pieces
  */
 bool Game_board::light_turn(int column, int row) {
     save_board_state();
@@ -81,11 +63,9 @@ bool Game_board::light_turn(int column, int row) {
     board[column][row-1] = WHITE;
     int flip = 1;
     if (do_flip_wrapper(column,row, flip)) {
-    	update_board();
     }
     else {
     	board[column][row-1] = EMPTY;
-    	update_board();
         return false;
     }
     return true;
@@ -134,9 +114,7 @@ char Game_board::has_won(string turn) {
             else
                 return 'l';
     }
-
     return 'n';
-
 }
 
 vector<pair<int, int> > Game_board::get_moves(string turn) {
@@ -162,25 +140,18 @@ pair<int,int> Game_board::dark_turn() {
     int flip = 0;
     vector< pair<int, int> > get_dark_moves;
     get_dark_moves = get_moves(BLACK);
-    
-    //cout << get_dark_moves.size() << endl;
 
     // skip turn if no moves
     if (get_dark_moves.size() <= 0) return pair<int,int>();
 
     int move = rand() % get_dark_moves.size();
     
-    //cout << "Column: " <<get_dark_moves[move].first << " Row: "<<get_dark_moves[move].second << endl;
-    
     board[get_dark_moves[move].first][get_dark_moves[move].second-1] = BLACK;
     if (do_flip_wrapper(get_dark_moves[move].first,get_dark_moves[move].second, 1)) {
-    	update_board();
         return get_dark_moves[move];
     }
     else {
     	board[get_dark_moves[move].first][get_dark_moves[move].second-1] = EMPTY;
-    	update_board();
-        //cout << "Invalid Move!" << endl;
     }
 }
 
@@ -407,17 +378,5 @@ int main () {
             else cout << "I" << endl;
         }
     }
-
-    //gb.available_moves();
-    //gb.light_turn(E, 3);
-    //gb.dark_turn();
-    //gb.available_moves();
-    //gb.light_turn(C, 5);
-    //gb.dark_turn();
-    //gb.available_moves();
-    //gb.light_turn(D, 2);
-    //gb.available_moves();
 	return 0;
 }
-
-
