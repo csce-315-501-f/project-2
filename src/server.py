@@ -120,9 +120,18 @@ def domove(tag, move):
     resp = game_states[tag].read()
     if "I" in resp:
         sys.stdout.write("Game %d: Bad move\n" % tag)
-        return False
+        return "Invalid"
+    if "W" in resp:
+        sys.stdout.write("Game %d: Player win\n" % tag)
+        return "Win"
+    if "T" in resp:
+        sys.stdout.write("Game %d: Player tie\n" % tag)
+        return "Tie"
+    if "L" in resp:
+        sys.stdout.write("Game %d: Player lose\n" % tag)
+        return "Loss"
     sys.stdout.write("%s\n"%resp)
-    return True
+    return "Good"
 
 
 #######################
@@ -222,10 +231,20 @@ def run(conn):
 
                 # EXECUTE A MOVE
                 elif started:
-                    if (re.match(move_r,msg) and domove(tag,msg)):
+                    if (re.match(move_r,msg)):
+                        res = domove(tag,msg)
+                        if "I" in res:
+                            conn.send("ILLEGAL\n;Bad move\n")
+                            continue
                         conn.send("OK\n")
+                        if "W" in res:
+                            conn.send(";You won!\n")
+                        elif "T" in res:
+                            conn.send(";You tied!\n")
+                        elif "L" in res:
+                            conn.send(";You lost!\n")
                     else:
-                        conn.send("ILLEGAL\n;Bad move\n")
+                        conn.send("ILLEGAL\n;Unknown command\n")
                         continue
 
                 # CHOOSE MODE: HUMAN-AI, AI-AI

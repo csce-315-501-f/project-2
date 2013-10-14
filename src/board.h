@@ -17,6 +17,11 @@
 #define G 6
 #define H 7
 
+
+#define BLACK "@"
+#define WHITE "O"
+#define EMPTY "_"
+
 using namespace std;
 
 
@@ -25,7 +30,7 @@ class Game_board {
 public:
 
 	Game_board() {
-		vector<string> tempRow(8,"_");
+		vector<string> tempRow(8,EMPTY);
 		vector< vector<string> > tempBoard(8,tempRow);
 		board = tempBoard;
 		init_dark();
@@ -40,6 +45,8 @@ public:
 	bool light_turn(int column, int row);
 	void dark_turn();
 	bool undo(); // return true if successfull, or false if there is nothing to undo
+    vector<pair<int, int> > get_moves(string turn);
+    char has_won(string turn); // returns l for loss, t for tie, w for win, and n for game not over
 
 	bool light_can_move(int column, int row);
 
@@ -66,6 +73,8 @@ private:
     void init_dark();
 
     void save_board_state(); // saves the current board state to board_states stack
+
+    int pieces(string turn);
 
 	vector<pair<int, int> > get_light_moves;
 
