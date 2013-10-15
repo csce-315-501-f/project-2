@@ -6,6 +6,8 @@ server.py:
     In order to play a game, you must first compile the board.cpp file into an executable
     named 'board' using the following command:
         g++ board.cpp -o board
+        or
+        make
     Failure to do so will result in the server not being able to run the board backend process.
 
     To start the server use the following command:
@@ -28,7 +30,7 @@ To connect and play:
 
     Note: all commands are case INSENSITIVE
 
-    GAME SETTINGS:
+    GAME SETTINGS (AI-AI game mode NYI):
     Difficulty:         EASY | MEDIUM | HARD
     Mode:               Human-ai | AI-AI IP-addr port difficulty difficulty
 
