@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <stack>
+#include <limits.h>
 
 #define ROWS 7
 #define COLUMNS 7
@@ -17,6 +18,14 @@
 #define G 6
 #define H 7
 
+// Board weights for min-max algorithm
+// based off of http://mnemstudio.org/ai/game/images/reversi_zones1.gif
+#define R1 5  // center
+#define R2 3  // center border
+#define R3 15 // edges
+#define R4 1  // corner border
+#define R5 20 // corner
+
 
 #define BLACK "@"
 #define WHITE "O"
@@ -24,21 +33,25 @@
 
 using namespace std;
 
+typedef pair<int, pair<int, int> > i3;
+
 
 class Game_board {
 
 public:
 
 	Game_board() {
-		vector<string> tempRow(8,EMPTY);
-		vector< vector<string> > tempBoard(8,tempRow);
+		// vector<string> tempRow(8,EMPTY);
+		vector< vector<string> > tempBoard(8,vector<string>(8,EMPTY));
 		board = tempBoard;
 		init_board();
+		init_board_weights();
 	}
 
 	// string board[8][8];
 	vector< vector<string> > board;
 	stack<vector<vector<string> > > board_states;
+	vector< vector<int> > board_weights;
 
 	bool light_turn(int column, int row);
 	pair<int,int> dark_turn();
@@ -76,5 +89,9 @@ private:
 
 	bool do_flip(int x, int y, int xdir, int ydir, int flip);
 	bool do_flip_wrapper(int x, int y, int flip); // flip = 0 means looking for possible moves; 1 flip will happen
+
+	i3 find_best_move(string turn, int depth);
+	void init_board_weights();
+	int get_board_state_weight(string weight);
     
 };

@@ -29,15 +29,6 @@ void Game_board::print_row(int row) {
 	}
 }
 
-/*void Game_board::populate_board() {
-	cout << ";  _ _ _ _ _ _ _ _ " << endl;
-	for (int i = 0; i <= ROWS; i++) {
-		cout << ";" << i+1 << "|";
-        print_row(i);
-        cout << endl;
-	}
-	cout << ";  a b c d e f g h \n" <<endl;;
-}*/
 
 void Game_board::save_board_state() {
     // board state is saved after every DARK turn, so that
@@ -131,28 +122,6 @@ vector<pair<int, int> > Game_board::get_moves(string turn) {
         }
     }
     return moves;
-}
-
-/*
- Looks for all the possible moves and chooses one randomly
- */
-pair<int,int> Game_board::dark_turn() {
-    int flip = 0;
-    vector< pair<int, int> > get_dark_moves;
-    get_dark_moves = get_moves(BLACK);
-
-    // skip turn if no moves
-    if (get_dark_moves.size() <= 0) return pair<int,int>();
-
-    int move = rand() % get_dark_moves.size();
-    
-    board[get_dark_moves[move].first][get_dark_moves[move].second-1] = BLACK;
-    if (do_flip_wrapper(get_dark_moves[move].first,get_dark_moves[move].second, 1)) {
-        return get_dark_moves[move];
-    }
-    else {
-    	board[get_dark_moves[move].first][get_dark_moves[move].second-1] = EMPTY;
-    }
 }
 
 /*
