@@ -260,8 +260,8 @@ bool Game_board::do_flip_wrapper(int x, int y, int flip) {
     return f[0] || f[1] || f[2] || f[3] || f[4] || f[5] || f[6] || f[7];
 }
 
-void setdiff(char diff) {
-    NULL;
+void Game_board::setdiff(char d) {
+    diff = d;
 }
 
 int convert(char let) {
@@ -291,19 +291,24 @@ int main () {
     Game_board gb;
     srand(time(0));
     char comm;
+    pair<int,int> n;
     while (comm != '@') {
         cin >> comm;
         switch (comm) {
         case 'e':
         case 'm':
         case 'h':
-            setdiff(comm);
+            gb.setdiff(comm);
             break;
         case 'd':
             cout << gb;
             break;
         case 'u':
             cout << (gb.undo()?"G":"B") << endl;
+            break;
+        case 'w':
+            n = gb.dark_turn();
+            cout << n.first << n.second << endl;
             break;
         case 'A':
         case 'B':
@@ -328,8 +333,16 @@ int main () {
                     return 0;
                 }
                 pair<int,int> m = gb.dark_turn();
+                
+                //skip dark turn if no moves
+                if (m == pair<int,int>()) {
+                    cout << "G" << endl;
+                    continue;
+                }
+                cout << m.first << m.second << endl;
                 while (!gb.can_move(WHITE)) {
                     m = gb.dark_turn();
+                    cout << m.first << m.second << endl;
                     switch (gb.has_won(BLACK)) {
                     case 'w':
                         cout << "L" << endl; 
@@ -342,7 +355,7 @@ int main () {
                         return 0;
                     }
                 }
-                cout << m.first << m.second << endl;
+                cout << "G" << endl;
             }
             else cout << "I" << endl;
         }

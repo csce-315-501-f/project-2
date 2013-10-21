@@ -22,9 +22,9 @@
 // based off of http://mnemstudio.org/ai/game/images/reversi_zones1.gif
 #define R1 5  // center
 #define R2 3  // center border
-#define R3 15 // edges
-#define R4 1  // corner border
-#define R5 20 // corner
+#define R3 25 // edges
+#define R4 -10  // corner border
+#define R5 50 // corner
 
 
 #define BLACK "@"
@@ -46,6 +46,7 @@ public:
 		board = tempBoard;
 		init_board();
 		init_board_weights();
+        diff = 'e';
 	}
 
 	// string board[8][8];
@@ -72,6 +73,9 @@ public:
 	bool game_over();
 	
     friend ostream& operator<<(ostream& os, Game_board& gb);
+
+    void setdiff(char d);
+    char diff;
 
 private:
 	

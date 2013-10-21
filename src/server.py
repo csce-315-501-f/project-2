@@ -17,7 +17,6 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.setblocking(False)
 
-
 # Save information for each game played
 game_states = {}     # dictionary for game info
 class state_o:
@@ -29,6 +28,7 @@ class state_o:
         self.port = 0
         self.diff2 = "0"
         self.started = False
+        self.conn = 0
     def __repr__(self):
         if self.port > 0:
             return "%s, %s, %s, %s, %s" % (self.side, self.mode, self.diff, self.ip, self.port)
@@ -40,6 +40,12 @@ class state_o:
     def start(self):
         self.proc = Popen('board', shell=False, stdout=PIPE, stdin=PIPE, stderr=PIPE)
         self.started = True
+        if "EASY" in self.diff:
+            self.send('e')
+        if "MEDIUM" in self.diff:
+            self.send('m')
+        if "HARD" in self.diff:
+            self.send('h')
         #self.send(self.diff)
     def end(self):
         if self.started:
@@ -92,10 +98,65 @@ def setmode(tag, mode):
         game_states[tag].port = port
         game_states[tag].diff = diff
         game_states[tag].diff2 = diff2
+        setdifficulty(tag,diff)
+
+        game_states[tag].start()
+        game_states[tag].send('w')
+        move1 = game_states[tag].read()
+        move = chr(ord(move1[0]) + 17)
+        move = move + move1[1]
+        game_states[tag].conn.send("First move is %s" % move)
+
+        cs = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cs.connect(("128.194.138.51",int(port)))
+        cs.setblocking(False)
+
+        game_states[tag].conn.send("starting game\n")
+        try:
+            cs.send("%s\n" % diff2)
+            cs.send("HUMAN-AI\n")
+            cs.send("%s\n" % move)
+            game_states[tag].conn.send("Sending move %s\n" % s)
+
+            move = "00"
+
+            while True:
+                move = cs.recv(1024)
+
+                # Check for comments
+                if re.match(comment_r,move):
+                    continue
+
+                if (re.match(move_r,msg)):
+                    game_states[tag].conn.send("Received move %s\n" % s)
+                    res = domove(tag,move,cs)
+                    if "I" in res:
+                        game_states[tag].conn.send("ILLEGAL\n;Bad move\n")
+                        continue
+                    if "W" in res:
+                        game_states[tag].conn.send(";You won!\n")
+                        conn.close()
+                        return 0
+                    elif "T" in res:
+                        game_states[tag].conn.send(";You tied!\n")
+                        conn.close()
+                        return 0
+                    elif "L" in res:
+                        game_states[tag].conn.send(";You lost!\n")
+                        conn.close()
+                        return 0
+                    else:
+                        game_states[tag].conn.send("ILLEGAL\n;Unknown command\n")
+                        continue
+                    move = "00"
+
+        except socket.error:
+            cs.close()
+
 
 def setdifficulty(tag, level):
     sys.stdout.write("Game %d set to %s\n" % (tag, level))
-    game_states[tag].diff = level[0]
+    game_states[tag].diff = level
 
 def doexit(tag):
     game_states[tag].end()
@@ -114,28 +175,34 @@ def doundo(tag):
     resp = game_states[tag].read()
     return "G" in resp
 
-def domove(tag, move):
+def domove(tag, move, conn):
     game_states[tag].send(move)
     sys.stdout.write("Game %d: Sending move %s\n" % (tag,move))
     resp = game_states[tag].read()
+    sys.stdout.write("Response from server: %s\n" % resp)
     if "I" in resp:
         sys.stdout.write("Game %d: Bad move\n" % tag)
         return "Invalid"
-    if "W" in resp:
-        sys.stdout.write("Game %d: Player win\n" % tag)
-        game_states[tag].end()
-        return "Win"
-    if "T" in resp:
-        sys.stdout.write("Game %d: Player tie\n" % tag)
-        game_states[tag].end()
-        return "Tie"
-    if "L" in resp:
-        sys.stdout.write("Game %d: Player lose\n" % tag)
-        game_states[tag].end()
-        return "Loss"
-    move = chr(ord(resp[0]) + 17)
-    move = move + resp[1]
-    sys.stdout.write("%s\n"%move)
+    while resp != "" and not "G" in resp:
+        if "W" in resp:
+            sys.stdout.write("Game %d: Player win\n" % tag)
+            game_states[tag].end()
+            return "Win"
+        if "T" in resp:
+            sys.stdout.write("Game %d: Player tie\n" % tag)
+            game_states[tag].end()
+            return "Tie"
+        if "L" in resp:
+            sys.stdout.write("Game %d: Player lose\n" % tag)
+            game_states[tag].end()
+            return "Loss"
+        move = chr(ord(resp[0]) + 17)
+        move = move + resp[1]
+        conn.send("%s\n"%move)
+        sys.stdout.write("Server goes in %s\n"%move)
+        if not "G" in resp:
+            resp = game_states[tag].read()
+            sys.stdout.write("Response from server: %s\n" % resp)
     return move
 
 
@@ -202,6 +269,7 @@ def run(conn):
         sys.stdout.write("Creating game %d\n" % tag)
         global game_states
         game_states[tag] = state_o()
+        game_states[tag].conn = conn
         while True:
             
             # Receive a message and convert to uppercase
@@ -237,7 +305,7 @@ def run(conn):
                 # EXECUTE A MOVE
                 elif started:
                     if (re.match(move_r,msg)):
-                        res = domove(tag,msg)
+                        res = domove(tag,msg,conn)
                         if "I" in res:
                             conn.send("ILLEGAL\n;Bad move\n")
                             continue
@@ -254,7 +322,6 @@ def run(conn):
                             conn.send(";You lost!\n")
                             conn.close()
                             return 0
-                        conn.send("%s\n" % res)
                     else:
                         conn.send("ILLEGAL\n;Unknown command\n")
                         continue
