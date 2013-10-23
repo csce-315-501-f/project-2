@@ -260,6 +260,13 @@ bool Game_board::do_flip_wrapper(int x, int y, int flip) {
     return f[0] || f[1] || f[2] || f[3] || f[4] || f[5] || f[6] || f[7];
 }
 
+void Game_board::change_sides() {
+    board [D][3] = BLACK;
+    board [D][4] = WHITE;
+    board [E][3] = WHITE;
+    board [E][4] = BLACK;
+}
+
 void Game_board::setdiff(char d) {
     diff = d;
 }
@@ -307,6 +314,7 @@ int main () {
             cout << (gb.undo()?"G":"B") << endl;
             break;
         case 'w':
+            gb.change_sides();
             n = gb.dark_turn();
             cout << n.first << n.second << endl;
             break;

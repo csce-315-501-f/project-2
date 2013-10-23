@@ -89,8 +89,14 @@ def setmode(tag, mode):
     sys.stdout.write("Game %d set to %s\n" % (tag, mode))
     game_states[tag].mode = mode
     if "AI-AI" in mode:
-        ip_addr = re.findall(ip_r,mode)[0][0]
-        port = int(re.findall(port_r,mode)[0][0])
+        try:
+            ip_addr = re.findall(ip_r,mode)[0][0]
+            port = int(re.findall(port_r,mode)[4][0])
+        except:
+            ip_addr = re.findall(host_r,mode)[0][0]
+            port = int(re.findall(port_r,mode)[0][0])
+        print ip_addr
+        print port
         diff = re.findall(difficulty_r,mode)[0][0]
         diff2 = re.findall(difficulty_r,mode)[1][0]
         game_states[tag].mode = "AI-AI"
@@ -105,50 +111,61 @@ def setmode(tag, mode):
         move1 = game_states[tag].read()
         move = chr(ord(move1[0]) + 17)
         move = move + move1[1]
-        game_states[tag].conn.send("First move is %s" % move)
 
         cs = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        cs.connect(("128.194.138.51",int(port)))
-        cs.setblocking(False)
+        sys.stdout.write("Connecting to %s at port %s\n" % (ip_addr,port))
+        cs.connect((ip_addr,int(port)))
+        game_states[tag].conn.send(cs.recv(1024))
+        cs.setblocking(True)
 
-        game_states[tag].conn.send("starting game\n")
+        game_states[tag].conn.send("Starting game\n")
         try:
             cs.send("%s\n" % diff2)
+            cs.recv(1024)
             cs.send("HUMAN-AI\n")
+            cs.recv(1024)
             cs.send("%s\n" % move)
-            game_states[tag].conn.send("Sending move %s\n" % s)
-
+            game_states[tag].conn.send("Sending move %s\n" % move)
+            dodisplay(tag,game_states[tag].conn)
             move = "00"
 
             while True:
                 move = cs.recv(1024)
+                moves = map (lambda x: x.strip(), move.splitlines())
 
-                # Check for comments
-                if re.match(comment_r,move):
-                    continue
+                for move in moves:
+                    # Check for comments
+                    if re.match(comment_r,move) or move == "OK":
+                        continue
 
-                if (re.match(move_r,msg)):
-                    game_states[tag].conn.send("Received move %s\n" % s)
-                    res = domove(tag,move,cs)
-                    if "I" in res:
-                        game_states[tag].conn.send("ILLEGAL\n;Bad move\n")
-                        continue
-                    if "W" in res:
-                        game_states[tag].conn.send(";You won!\n")
-                        conn.close()
-                        return 0
-                    elif "T" in res:
-                        game_states[tag].conn.send(";You tied!\n")
-                        conn.close()
-                        return 0
-                    elif "L" in res:
-                        game_states[tag].conn.send(";You lost!\n")
-                        conn.close()
-                        return 0
-                    else:
-                        game_states[tag].conn.send("ILLEGAL\n;Unknown command\n")
-                        continue
-                    move = "00"
+                    if (re.match(move_r,move)):
+                        game_states[tag].conn.send("Received move %s\n" % move)
+                        res = domove(tag,move,cs)
+                        if "I" in res:
+                            game_states[tag].conn.send("ILLEGAL\n;Bad move\n")
+                            continue
+                        if "W" in res:
+                            game_states[tag].conn.send(";You lost!\n")
+                            game_states[tag].conn.close()
+                            return 0
+                        elif "T" in res:
+                            game_states[tag].conn.send(";You tied!\n")
+                            game_states[tag].conn.close()
+                            return 0
+                        elif "L" in res:
+                            game_states[tag].conn.send(";You won!\n")
+                            game_states[tag].conn.close()
+                            return 0
+                        else:
+                            for i in res:
+                                if not "G" in i:
+                                    movew = chr(ord(i[0]) + 17)
+                                    movew = movew + i[1]
+                                    game_states[tag].conn.send("Sending move %s\n" % movew)
+                            dodisplay(tag,game_states[tag].conn)
+                        move = "00"
+
+                    time.sleep(.5)
 
         except socket.error:
             cs.close()
@@ -177,9 +194,11 @@ def doundo(tag):
 
 def domove(tag, move, conn):
     game_states[tag].send(move)
-    sys.stdout.write("Game %d: Sending move %s\n" % (tag,move))
+    sys.stdout.write("Game %d: Doing move %s\n" % (tag,move))
     resp = game_states[tag].read()
-    sys.stdout.write("Response from server: %s\n" % resp)
+    moves = []
+    sys.stdout.write("Game %d: Response from board: %s\n" % (tag,resp))
+    moves.append(resp)
     if "I" in resp:
         sys.stdout.write("Game %d: Bad move\n" % tag)
         return "Invalid"
@@ -199,11 +218,12 @@ def domove(tag, move, conn):
         move = chr(ord(resp[0]) + 17)
         move = move + resp[1]
         conn.send("%s\n"%move)
-        sys.stdout.write("Server goes in %s\n"%move)
+        sys.stdout.write("Game %d: Board goes at %s\n" % (tag,move))
         if not "G" in resp:
             resp = game_states[tag].read()
-            sys.stdout.write("Response from server: %s\n" % resp)
-    return move
+            sys.stdout.write("Game %d: Response from board: %s\n" % (tag,resp))
+            moves.append(resp)
+    return moves
 
 
 #######################
@@ -211,7 +231,8 @@ def domove(tag, move, conn):
 #######################
 
 # Format regex
-ip_r = r'((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))'
+ip_r = r'(((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9]))'
+host_r = r'((\w+\.)+\w+)'
 port_r = r'(([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))'
 difficulty_r = r'\s*((EASY)|(MEDIUM)|(HARD))\s*'
 
@@ -236,7 +257,7 @@ difficulties =     [
 
 gamemodes =    [
         r"\s*HUMAN-AI\s*",
-        r"\s*AI-AI\s+%s\s+%s\s+%s\s+%s" % (ip_r, port_r, difficulty_r, difficulty_r)
+        r"\s*AI-AI\s+(%s|%s)\s+%s\s+%s\s+%s" % (ip_r, host_r, port_r, difficulty_r, difficulty_r)
         ]
 
 # State machine constants

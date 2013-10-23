@@ -74,6 +74,7 @@ public:
 	
     friend ostream& operator<<(ostream& os, Game_board& gb);
 
+    void change_sides();
     void setdiff(char d);
     char diff;
 
