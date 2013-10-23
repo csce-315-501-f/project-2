@@ -38,11 +38,18 @@ void Game_board::save_board_state() {
 
 bool Game_board::undo() {
     if (board_states.size() <= 0) return false;
+    board_redo_states.push(board);
     board = board_states.top();
     board_states.pop(); // remove the top because it is the current move
     return true;
 }
 
+bool Game_board::redo() {
+    if (board_redo_states.size() <= 0) return false;
+    board = board_redo_states.top();
+    board_redo_states.pop();
+    return true;
+}
 /*
  Takes a coordinate as an input and checks if it's a valid move 
  If it is, it flips the corresponding pieces
@@ -312,6 +319,9 @@ int main () {
             break;
         case 'u':
             cout << (gb.undo()?"G":"B") << endl;
+            break;
+        case 'r':
+            cout << (gb.redo()?"G":"B") << endl;
             break;
         case 'w':
             gb.change_sides();
