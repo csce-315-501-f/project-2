@@ -2,6 +2,37 @@
 
 using namespace std;
 
+string Game_board::rdisplay()
+{
+    // initialize the string
+    string ss = "";
+
+    vector<vector<char> > boardstring(ROWS+1,vector<char>(COLUMNS+1,'.'));
+    
+    // set available moves
+    vector<pair<int,int> > moves = get_moves(WHITE);
+    for(int i = 0; i < moves.size(); ++i) 
+        boardstring[moves[i].first][moves[i].second-1] = 'M';
+    
+    // place pieces
+	for (int i = 0; i <= ROWS; i++) {
+        for (int j = 0; j <= COLUMNS; j++) {
+            if (board[i][j] == WHITE)
+                boardstring[i][j] = 'W';
+            else if (board[i][j] == BLACK)
+                boardstring[i][j]= 'B';
+        }
+	}
+
+    for(int i = 0; i <= ROWS; i++) {
+        for(int j = 0; j <= COLUMNS; j++) {
+            ss += boardstring[i][j];
+        }
+        ss += '\n';
+    }
+	return ss;
+}
+
 ostream& operator<<(ostream& os, Game_board& gb)
 {
     cout << ";  _ _ _ _ _ _ _ _ " << endl;
@@ -318,6 +349,9 @@ int main () {
             break;
         case 'd':
             cout << gb;
+            break;
+        case 'x':
+            cout << gb.rdisplay();
             break;
         case 'u':
             cout << (gb.undo()?"G":"B") << endl;

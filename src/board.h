@@ -75,6 +75,7 @@ public:
 	bool game_over();
 	
     friend ostream& operator<<(ostream& os, Game_board& gb);
+    string rdisplay();
 
     void change_sides();
     void setdiff(char d);

@@ -179,6 +179,14 @@ def doexit(tag):
     game_states[tag].end()
     pass
 
+def dordisplay(tag,conn):
+    game_states[tag].send("x")
+    sys.stdout.write("RDisplay game %d\n" % tag)
+    for i in range(8):
+        info = "%s\n" % game_states[tag].read()
+        conn.send(info)
+        sys.stdout.write(info)
+
 def dodisplay(tag,conn):
     game_states[tag].send("d")
     sys.stdout.write("Display game %d\n" % tag)
@@ -243,6 +251,7 @@ difficulty_r = r'\s*((EASY)|(MEDIUM)|(HARD))\s*'
 
 # Command regex
 display_r = r'^\s*DISPLAY\s*'
+rdisplay_r = r'^\s*RDISPLAY\s*'
 exit_r = r'^\s*EXIT\s*'
 undo_r = r'^\s*UNDO\s*'
 redo_r = r'^\s*REDO\s*'
@@ -316,21 +325,26 @@ def run(conn):
                     sys.stdout.write("Game %d ended\n" % tag)
                     return 0
 
+                # RDISPLAY
+                elif re.match(rdisplay_r,msg) and started:
+                    dordisplay(tag,conn)
+                    continue
+
                 # DISPLAY
-                elif re.match(display_r,msg):
+                elif re.match(display_r,msg) and started:
                     conn.send("OK\n")
                     dodisplay(tag,conn)
                     continue
 
                 # REDO
-                elif re.match(redo_r,msg):
+                elif re.match(redo_r,msg) and started:
                     conn.send("OK\n")
                     if not doredo(tag):
                         conn.send(";Nothing to redo\n")
                     continue
 
                 # UNDO
-                elif re.match(undo_r,msg):
+                elif re.match(undo_r,msg) and started:
                     conn.send("OK\n")
                     if not doundo(tag):
                         conn.send(";Nothing to undo\n")
