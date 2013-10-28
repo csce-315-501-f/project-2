@@ -165,7 +165,7 @@ def setmode(tag, mode):
                             dodisplay(tag,game_states[tag].conn)
                         move = "00"
 
-                    time.sleep(.5)
+                    #time.sleep(.5)
 
         except socket.error:
             cs.close()
@@ -186,6 +186,11 @@ def dodisplay(tag,conn):
         info = "%s\n" % game_states[tag].read()
         conn.send(info)
         sys.stdout.write(info)
+
+def doredo(tag):
+    game_states[tag].send("r")
+    resp = game_states[tag].read()
+    return "G" in resp
 
 def doundo(tag):
     game_states[tag].send("u")
@@ -240,6 +245,7 @@ difficulty_r = r'\s*((EASY)|(MEDIUM)|(HARD))\s*'
 display_r = r'^\s*DISPLAY\s*'
 exit_r = r'^\s*EXIT\s*'
 undo_r = r'^\s*UNDO\s*'
+redo_r = r'^\s*REDO\s*'
 move_r = r'^\s*[A-H]\s*[0-8]\s*$'
 comment_r = r'^\s*;.*'
 
@@ -314,6 +320,13 @@ def run(conn):
                 elif re.match(display_r,msg):
                     conn.send("OK\n")
                     dodisplay(tag,conn)
+                    continue
+
+                # REDO
+                elif re.match(redo_r,msg):
+                    conn.send("OK\n")
+                    if not doredo(tag):
+                        conn.send(";Nothing to redo\n")
                     continue
 
                 # UNDO

@@ -34,9 +34,6 @@ void Board::init()
 	//start_turn(light_pieces);
 }
 
-/*
-This function was used when all the white spaces were buttons but I changed it so that only the possible moves are actual buttons,
-therefore this is no longer useful but might help you when trying to figure out how to call certain functions.
 
 void Board::create_buttons()
 {
@@ -57,15 +54,15 @@ void Board::create_buttons()
 
 	//attach(undo_button);
 }
-*/
 
-/*void Board::reset()
+
+void Board::reset()
 {
 	for (int i=0; i < spaces.size(); ++i) {
 		spaces[i].hide();
 		spaces[i].color_square->set_fill_color(Color::white);
 	}
-}*/
+}
 
 void Board::set_caption(const string& s)
 {
@@ -101,17 +98,18 @@ void Board::update()
 /*
 *********** I believe this is how things should be called when receiveing information from the server *************
 
-char board[7];
-char print_board[7][7];
+char board[10];
+char print_board[8][8];
 
-getline(board,7)
 int i = 0;
 
-while (getline.eof){
+char* command = "RDISPLAY\n";
+write(sockfd,command,strlen(command));
+for (int i = 0; i <= 7; i++) {
+    read(sockfd,board,sizeof(board)-1);
 	for ( int j = 0; j <= 7; j++) {
 		print_board[i][j] = board[j];
 	}
-	i++;
 }
 
 light_pieces->clear();
@@ -194,14 +192,14 @@ int main()
 {
 
 
-	//try {
+	try {
 		/*
-		*************** I couldn't figure out how to implement the socket but I found this and I think it might be useful ******************
+		*************** I couldn't figure out how to implement the socket but I found this and I think it might be useful ******************/
 
-		http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
-		int sockfd, newsockfd, portno, clilen;
+		//http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
+		int sockfd, portno;
 	    char buffer[256];
-	    struct sockaddr_in serv_addr, cli_addr;
+	    struct sockaddr_in serv_addr;
 	    int  n;
 
 	    // First call to socket() function 
@@ -213,59 +211,33 @@ int main()
 	    }
 	    // Initialize socket structure 
 	    bzero((char *) &serv_addr, sizeof(serv_addr));
-	    portno = 5001;
+	    portno = 8888;
 	    serv_addr.sin_family = AF_INET;
-	    serv_addr.sin_addr.s_addr = INADDR_ANY;
 	    serv_addr.sin_port = htons(portno);
+
+        inet_pton(AF_INET,"128.194.138.51",&serv_addr.sin_addr);
 	 
 	    // Now bind the host address using bind() call.
-	    if (bind(sockfd, (struct sockaddr *) &serv_addr,
+	    if (connect(sockfd, (struct sockaddr *) &serv_addr,
 	                          sizeof(serv_addr)) < 0)
 	    {
-	         perror("ERROR on binding");
+	         perror("ERROR on connect");
 	         exit(1);
 	    }
+        
 	    // Now start listening for the clients, here 
 	    // process will go in sleep mode and will wait 
 	    // for the incoming connection
 	     
-	    listen(sockfd,5);
-	    clilen = sizeof(cli_addr);
-	    while (1) 
-	    {
-	        newsockfd = accept(sockfd, 
-	                (struct sockaddr *) &cli_addr, &clilen);
-	        if (newsockfd < 0)
-	        {
-	            perror("ERROR on accept");
-	            exit(1);
-	        }
-	        // Create child process 
-	        pid = fork();
-	        if (pid < 0)
-	        {
-	            perror("ERROR on fork");
-		    exit(1);
-	        }
-	        if (pid == 0)  
-	        {
-	            /* This is the client process 
-	            close(sockfd);
-	            doprocessing(newsockfd);
-	            exit(0);
-	        }
-	        else
-	        {
-	            close(newsockfd);
-	        }
-	    } // end of while 
-	}
-*/
-		Vector_ref<Light> LP;
-		Vector_ref<Dark> DP;
-		Board board(Point(0,0), 8, 8, 50, "Gameboard", LP, DP);
+        while ( (n = read(sockfd, buffer, sizeof(buffer)-1)) > 0 ) {
+            Vector_ref<Light> LP;
+            Vector_ref<Dark> DP;
+            Board board(Point(0,0), 8, 8, 50, "Gameboard", LP, DP);
+            board.setSock(sockfd);
+            //command = "D6\n";
+            //write(sockfd,command,strlen(command));
 
-		/*return gui_main();
+        }
 	}
 	catch (exception& e) {
 		cerr << "exception: " << e.what() << endl;
@@ -274,7 +246,7 @@ int main()
 	catch (...) {
 		cerr << "unknown exception" << endl;
 		return 2;
-	}*/
+	}
 
 	return Fl::run();
 }

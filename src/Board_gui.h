@@ -102,6 +102,10 @@ public:
 	Text* caption;
 
 	Vector_ref<Space>* spaces;
+
+    bool setSock(int sock) {
+        sockfd = sock;
+    }
 	
 	void create_buttons();
 	void reset();
@@ -126,6 +130,7 @@ public:
 	}
 
 private:
+    int sockfd;
 	//Graph_lib::Button undo_button;
 	//Graph_lib::Button redo_button;
 
@@ -152,6 +157,17 @@ private:
 		Board* gb = static_cast<Board*>(pm->owner);
 		gb->caption->set_label(pm->label);
 		//c->light_pieces->mv(s->loc.x - c->light_pieces->point(0).x,s->loc.y - c->light_pieces->point(0).y);
+        int x = pm->loc.x;
+        int y = pm->loc.y;
+        char move[4];
+        move[0] = (char) (x+65);
+        move[1] = (char) (y+49);
+        move[2] = '\n';
+        move[3] = '\x00';
+        char buffer[256];
+        write(sockfd,move,strlen(move));
+        while (read(sockfd,buffer,sizeof(buffer)-1))
+            if (strcmp(buffer,"OK")>=0) break;
 		gb->update();
 		Fl::redraw();
 	}
