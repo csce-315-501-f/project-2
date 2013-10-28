@@ -14,16 +14,18 @@ pair<int,int> Game_board::dark_turn() {
     pair<int,int> move;
     switch (diff) {
     case 'e':
-        move = find_best_move(BLACK, 1).second;
+        // move = find_best_move(BLACK, 1).second;
+        move = find_best_move_alphabeta(true, 1, ALPHA, BETA).second;
         break;
     case 'm':
-        move = find_best_move(BLACK, 3).second;
+        // move = find_best_move(BLACK, 3).second;
+        move = find_best_move_alphabeta(true, 3, ALPHA, BETA).second;
         break;
     case 'h':
-        move = find_best_move(BLACK, 5).second;
+        // move = find_best_move(BLACK, 5).second;
+        move = find_best_move_alphabeta(true, 5, ALPHA, BETA).second;
     }
     
-    //cout << "BEFORE HERE " << move.first << " " << move.second <<  endl;
     if (move == pair<int,int>())
         return move;
     board[move.first][move.second-1] = BLACK;
@@ -33,7 +35,6 @@ pair<int,int> Game_board::dark_turn() {
     else {
         board[move.first][move.second-1] = EMPTY;
     }
-    //cout << "after HERE" << endl;
     return pair<int,int>();
 }
 
@@ -50,32 +51,73 @@ i3 Game_board::find_best_move(string turn, int depth) {
     pair<int, int> bestMove;
     int bestMoveWeight = INT_MIN;
 
-
-
     moves = get_moves(turn);
-    //cout << "movs " << moves.size() << endl;
-    //cout << "flip result " << do_flip_wrapper(moves[0].first,moves[0].second, 0) << endl;; 
     if (moves.empty()) return find_best_move(nextTurn,depth-1);
     // gets list of available moves and finds the move with the max weight
     for (int j = 0; j < moves.size(); j++) {
-        //cout << "flipping " << moves[j].first << " " << moves[j].second << endl;
         board[moves[j].first][moves[j].second-1] = turn;
         if (do_flip_wrapper(moves[j].first,moves[j].second, 1)) {
-            // int weight = get_board_state_weight();
-            //cout << "recursing" << endl;
             i3 futureMove = find_best_move(nextTurn, depth-1);
-            //cout << "checking " << moves[j].first << " " << moves[j].second << endl;
             if (futureMove.first > bestMoveWeight) {
-                //cout << "set " << endl;
                 bestMove = moves[j];
                 bestMoveWeight = futureMove.first;
-                // bestBoardState = board;
             }
             board = backupBoard;
         }
     }
     return i3(bestMoveWeight, bestMove);
 }
+
+
+i3 Game_board::find_best_move_alphabeta(bool maximizingPlayer, int depth, int alpha, int beta) {
+    string turn = (maximizingPlayer)?BLACK:WHITE;
+    string weight_player = (!maximizingPlayer)?BLACK:WHITE;
+    // cout << "alpha = " << alpha << ", beta = " << beta << endl;
+    if (depth == 0) return i3(get_board_state_weight(weight_player),pair<int, int>());
+
+    vector<pair<int, int> > moves = get_moves(turn);
+    vector< vector<string> > backupBoard = board;
+    pair<int, int> bestMove;
+
+    if (maximizingPlayer) { // BLACK's turn
+        i3 bestAlpha;
+        for (int i = 0; i < moves.size(); ++i) {
+            board[moves[i].first][moves[i].second-1] = BLACK;
+            do_flip_wrapper(moves[i].first,moves[i].second, 1);
+            i3 tempAlpha = find_best_move_alphabeta(false, depth-1, alpha, beta);
+            if (alpha < tempAlpha.first) {
+                alpha = tempAlpha.first;
+                tempAlpha.second = moves[i];
+                bestAlpha = tempAlpha;
+            }
+            board = backupBoard;
+            if (beta <= alpha) {
+                break; // beta cut-off
+            }
+        }
+        return bestAlpha;
+    }
+    else { // WHITE's turn
+        i3 bestBeta;
+        for (int j = 0; j < moves.size(); ++j) {
+            board[moves[j].first][moves[j].second-1] = WHITE;
+            do_flip_wrapper(moves[j].first,moves[j].second, 1);
+            i3 tempBeta = find_best_move_alphabeta(true, depth-1, alpha, beta);
+            tempBeta.first = -1 * tempBeta.first;
+            if (beta > tempBeta.first) {
+                beta = tempBeta.first;
+                tempBeta.second = moves[j];
+                bestBeta = tempBeta;
+            }
+            board = backupBoard;
+            if (beta <= alpha) {
+                break;
+            }
+        }
+        return bestBeta;
+    }
+}
+
 
 /*
  Gets the weighting of the current board

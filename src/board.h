@@ -26,6 +26,10 @@
 #define R4 -10  // corner border
 #define R5 50 // corner
 
+// initial values for calling find_best_move_alphabeta
+#define ALPHA INT_MIN
+#define BETA INT_MAX
+
 
 #define BLACK "@"
 #define WHITE "O"
@@ -98,7 +102,8 @@ private:
 	bool do_flip(int x, int y, int xdir, int ydir, int flip);
 	bool do_flip_wrapper(int x, int y, int flip); // flip = 0 means looking for possible moves; 1 flip will happen
 
-	i3 find_best_move(string turn, int depth);
+    i3 find_best_move(string turn, int depth);
+	i3 find_best_move_alphabeta(bool maximizingPlayer, int depth, int alpha, int beta);
 	void init_board_weights();
 	int get_board_state_weight(string weight);
     
