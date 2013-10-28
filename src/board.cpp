@@ -46,6 +46,7 @@ bool Game_board::undo() {
 
 bool Game_board::redo() {
     if (board_redo_states.size() <= 0) return false;
+    board_states.push(board);
     board = board_redo_states.top();
     board_redo_states.pop();
     return true;
@@ -56,6 +57,7 @@ bool Game_board::redo() {
  */
 bool Game_board::light_turn(int column, int row) {
     save_board_state();
+    while (!board_redo_states.empty()) board_redo_states.pop();
     if (board[column][row-1] == BLACK || board[column][row-1] == WHITE) 
         return false;
     board[column][row-1] = WHITE;
