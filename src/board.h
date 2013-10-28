@@ -51,12 +51,14 @@ public:
 
 	// string board[8][8];
 	vector< vector<string> > board;
-	stack<vector<vector<string> > > board_states;
+    stack<vector<vector<string> > > board_states;
+	stack<vector<vector<string> > > board_redo_states;
 	vector< vector<int> > board_weights;
 
 	bool light_turn(int column, int row);
 	pair<int,int> dark_turn();
-	bool undo(); // return true if successfull, or false if there is nothing to undo
+    bool undo(); // return true if successfull, or false if there is nothing to undo
+	bool redo(); // return true if successfull, or false if there is nothing to redo
     vector<pair<int, int> > get_moves(string turn);
     char has_won(string turn); // returns l for loss, t for tie, w for win, and n for game not over
 

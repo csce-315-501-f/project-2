@@ -1,6 +1,9 @@
 # Project Files
 src/board
 
+# Mac Files
+.DS_Store
+
 # Compiled Object files
 *.slo
 *.lo
