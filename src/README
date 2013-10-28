@@ -40,3 +40,5 @@ To connect and play:
     Undo your last move:    UNDO
     Exit game:              EXIT
 
+Compiling the GUI use the following command:
+	g++ Board_gui.cpp Graph.cpp GUI.cpp Window.cpp -lfltk -lfltk_images -std=c++11

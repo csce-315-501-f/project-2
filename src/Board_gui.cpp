@@ -59,13 +59,13 @@ void Board::create_buttons()
 }
 */
 
-void Board::reset()
+/*void Board::reset()
 {
 	for (int i=0; i < spaces.size(); ++i) {
 		spaces[i].hide();
 		spaces[i].color_square->set_fill_color(Color::white);
 	}
-}
+}*/
 
 void Board::set_caption(const string& s)
 {
@@ -74,7 +74,7 @@ void Board::set_caption(const string& s)
 
 void Board::update()
 { // this function is called at the start of every 'round'
-	reset();
+	//reset();
 	int r, c;
 	int dx, dy;
 

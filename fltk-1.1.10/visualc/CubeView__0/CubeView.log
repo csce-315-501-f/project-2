@@ -1,0 +1,21 @@
+﻿Build started 4/27/2012 12:26:03 AM.
+     1>Project "Z:\fltk-1.1.10\visualc\CubeView.vcxproj" on node 5 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating ".\CubeView__0\CubeView.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       CustomBuild:
+         Create .cxx and .h file with fluidd
+         '..\fluid\fluidd' is not recognized as an internal or external command,
+         operable program or batch file.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I. /I.. /ZI /nologo /W1 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D WIN32_LEAN_AND_MEAN /D VC_EXTRA_LEAN /D WIN32_EXTRA_LEAN /D _VC80_UPGRADE=0x0600 /Gm /EHsc /MDd /GS /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\CubeView__0\\" /Fd".\CubeView__0\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ..\test\CubeMain.cxx ..\test\CubeView.cxx ..\test\CubeViewUI.cxx
+         CubeViewUI.cxx
+     1>c1xx : fatal error C1083: Cannot open source file: '..\test\CubeViewUI.cxx': No such file or directory
+         CubeView.cxx
+         CubeMain.cxx
+     1>z:\fltk-1.1.10\test\cubemain.cxx(30): fatal error C1083: Cannot open include file: 'CubeViewUI.h': No such file or directory
+         Generating Code...
+     1>Done Building Project "Z:\fltk-1.1.10\visualc\CubeView.vcxproj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:02.32

@@ -1,0 +1,70 @@
+﻿Build started 4/27/2012 12:22:54 AM.
+     1>Project "Z:\fltk-1.1.10\visualc\jpeg.vcxproj" on node 5 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating ".\Debug\jpeg.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I../visualc /I../zlib /Zi /nologo /W1 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D WIN32_LEAN_AND_MEAN /D VC_EXTRA_LEAN /D WIN32_EXTRA_LEAN /D _VC80_UPGRADE=0x0600 /Gm- /EHsc /MDd /GS /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug\\" /Fd".\Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt ..\jpeg\jcapimin.c ..\jpeg\jcapistd.c ..\jpeg\jccoefct.c ..\jpeg\jccolor.c ..\jpeg\jcdctmgr.c ..\jpeg\jchuff.c ..\jpeg\jcinit.c ..\jpeg\jcmainct.c ..\jpeg\jcmarker.c ..\jpeg\jcmaster.c ..\jpeg\jcomapi.c ..\jpeg\jcparam.c ..\jpeg\jcphuff.c ..\jpeg\jcprepct.c ..\jpeg\jcsample.c ..\jpeg\jctrans.c ..\jpeg\jdapimin.c ..\jpeg\jdapistd.c ..\jpeg\jdatadst.c ..\jpeg\jdatasrc.c ..\jpeg\jdcoefct.c ..\jpeg\jdcolor.c ..\jpeg\jddctmgr.c ..\jpeg\jdhuff.c ..\jpeg\jdinput.c ..\jpeg\jdmainct.c ..\jpeg\jdmarker.c ..\jpeg\jdmaster.c ..\jpeg\jdmerge.c ..\jpeg\jdphuff.c ..\jpeg\jdpostct.c ..\jpeg\jdsample.c ..\jpeg\jdtrans.c ..\jpeg\jerror.c ..\jpeg\jfdctflt.c ..\jpeg\jfdctfst.c ..\jpeg\jfdctint.c ..\jpeg\jidctflt.c ..\jpeg\jidctfst.c ..\jpeg\jidctint.c ..\jpeg\jidctred.c ..\jpeg\jmemmgr.c ..\jpeg\jquant1.c ..\jpeg\jquant2.c ..\jpeg\jutils.c
+         jcapimin.c
+         jcapistd.c
+         jccoefct.c
+         jccolor.c
+         jcdctmgr.c
+         jchuff.c
+         jcinit.c
+         jcmainct.c
+         jcmarker.c
+         jcmaster.c
+         jcomapi.c
+         jcparam.c
+         jcphuff.c
+         jcprepct.c
+         jcsample.c
+         jctrans.c
+         jdapimin.c
+         jdapistd.c
+         jdatadst.c
+         jdatasrc.c
+         Generating Code...
+         Compiling...
+         jdcoefct.c
+         jdcolor.c
+         jddctmgr.c
+         jdhuff.c
+         jdinput.c
+         jdmainct.c
+         jdmarker.c
+         jdmaster.c
+         jdmerge.c
+         jdphuff.c
+         jdpostct.c
+         jdsample.c
+         jdtrans.c
+         jerror.c
+         jfdctflt.c
+         jfdctfst.c
+         jfdctint.c
+         jidctflt.c
+         jidctfst.c
+         jidctint.c
+         Generating Code...
+         Compiling...
+         jidctred.c
+         jmemmgr.c
+         jquant1.c
+         jquant2.c
+         jutils.c
+         Generating Code...
+     1>FileTracker : error FTK1011: could not create the new file tracking log file: Z:\fltk-1.1.10\visualc\Debug\CL.read.1.tlog. The file exists.
+         
+         
+         
+     1>FileTracker : error FTK1011: could not create the new file tracking log file: Z:\fltk-1.1.10\visualc\Debug\CL.write.1.tlog. The file exists.
+         
+         
+         
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Platforms\Win32\Microsoft.Cpp.Win32.Targets(153,5): error MSB6003: The specified task executable "CL.exe" could not be run. The process cannot access the file 'Z:\fltk-1.1.10\visualc\Debug\cl.write.1.tlog' because it is being used by another process.
+     1>Done Building Project "Z:\fltk-1.1.10\visualc\jpeg.vcxproj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:17.38

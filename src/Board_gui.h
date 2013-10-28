@@ -39,7 +39,7 @@ struct Dark : Piece {
 
 struct Space : Piece {
 	Space(int c, int r) : Piece(c, r) {
-	set_fill_color(Color::white;
+	set_fill_color(Color::white);
 	}
 };
 
@@ -48,8 +48,9 @@ struct Possible_moves : Button {
 	void* owner;
 	int col;
 	int row;
-	Image img;
-	Possible_moves(Point xy, int w, int ht, const string& label, Callback cb, int c, int r), img(Point(this->point(0).x, this->point(0).y),"dot.jpg")
+	//Image img;
+	//img(Point(this->point(0).x, this->point(0).y),"dot.jpg");
+	Possible_moves(Point xy, int w, int ht, const string& label, Callback cb, int c, int r)
 	: Button(xy, w, ht, label, cb)
 	{
 		color_square = new Rectangle(xy, w, ht);
@@ -134,7 +135,7 @@ private:
 	//static void cb_undo(Address, Address);
 	//static void cb_redo(Address, Address);
 
-	static void button_cb(Address, Address addr)
+	/*static void button_cb(Address, Address addr)
 	{
 		Space* s = static_cast<Space*>(addr);
 		Board* c = static_cast<Board*>(s->owner);
@@ -142,7 +143,7 @@ private:
 		//c->light_pieces->mv(s->loc.x - c->light_pieces->point(0).x,s->loc.y - c->light_pieces->point(0).y);
 		c->update();
 		Fl::redraw();
-	}
+	}*/
 	
 	/* This function sends back the coordinates that the button contained !!!! NOT WORKING !!! */	
 	static void move_cb(Address, Address addr)
@@ -159,10 +160,10 @@ private:
 	static void cb_undo(Address, Address addr)
 	{
 		//Possible_moves* pm = static_cast<Possible_moves*>(addr);
-		Board* gb = static_cast<Board*>(pm->owner);
+		//Board* gb = static_cast<Board*>(pm->owner);
 		//gb->caption->set_label(pm->label);
 		//c->light_pieces->mv(s->loc.x - c->light_pieces->point(0).x,s->loc.y - c->light_pieces->point(0).y);
-		gb->update();
+		//gb->update();
 		Fl::redraw();
 	}
 
@@ -170,10 +171,10 @@ private:
 	static void cb_redo(Address, Address addr)
 	{
 		//Possible_moves* pm = static_cast<Possible_moves*>(addr);
-		Board* gb = static_cast<Board*>(pm->owner);
+		//Board* gb = static_cast<Board*>(pm->owner);
 		//gb->caption->set_label(pm->label);
 		//c->light_pieces->mv(s->loc.x - c->light_pieces->point(0).x,s->loc.y - c->light_pieces->point(0).y);
-		gb->update();
+		//gb->update();
 		Fl::redraw();
 	}
 };
