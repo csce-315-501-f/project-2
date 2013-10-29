@@ -326,9 +326,13 @@ def run(conn):
                     return 0
 
                 # RDISPLAY
-                elif re.match(rdisplay_r,msg) and started:
-                    dordisplay(tag,conn)
-                    continue
+                elif re.match(rdisplay_r,msg):
+					if started:
+						dordisplay(tag,conn)
+						continue
+					else:
+						conn.send(("."*8 + "\n")*8)
+						continue
 
                 # DISPLAY
                 elif re.match(display_r,msg) and started:
