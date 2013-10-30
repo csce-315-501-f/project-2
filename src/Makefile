@@ -1,6 +1,6 @@
 CC=g++
 
-all: board gui
+all: board 
 
 board.o: board.cpp board.h
 	$(CC) -c board.cpp -o board.o

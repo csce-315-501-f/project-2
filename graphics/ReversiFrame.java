@@ -20,12 +20,16 @@ public class ReversiFrame extends JFrame{
     private PrintWriter out;
     private JPanel game;
     private JPanel options;
+    private JPanel results;
     private static String host;
     private static int port;
     private static String diff;
     private JTextField sname;
     private JTextField pname;
     private JComboBox dname;
+    //private JTextField winbox;
+    //private JTextField tiebox;
+    //private JTextField losebox;
 
     public void updateButtons() {
         String str = null;
@@ -44,22 +48,33 @@ public class ReversiFrame extends JFrame{
                 board[k] = in.readLine();
                 System.out.println(board[k]);
             }
-            for(int k = 0; k < 8; k++)
-                for(int n = 0; n < 8; n++)
-                    switch (board[k].charAt(n)) {
-                        case '.':
-                            buttons[n][k].setIcon(null);
-                            break;
-                        case 'M':
-                            buttons[n][k].setIcon(dot);
-                            break;
-                        case 'B':
-                            buttons[n][k].setIcon(black);
-                            break;
-                        case 'W':
-                            buttons[n][k].setIcon(white);
-                            break;
-                    }
+            if (board[0].contains("won")) {
+                JOptionPane.showMessageDialog(this,"YOU WON!");
+            }
+            else if (board[0].contains("lost")) {
+                JOptionPane.showMessageDialog(this,"you lost");
+            }
+            else if (board[0].contains("tie")) {
+                JOptionPane.showMessageDialog(this,"You tied!");
+            }
+            else {
+                for(int k = 0; k < 8; k++) 
+                    for(int n = 0; n < 8; n++)
+                        switch (board[k].charAt(n)) {
+                            case '.':
+                                buttons[n][k].setIcon(null);
+                                break;
+                            case 'M':
+                                buttons[n][k].setIcon(dot);
+                                break;
+                            case 'B':
+                                buttons[n][k].setIcon(black);
+                                break;
+                            case 'W':
+                                buttons[n][k].setIcon(white);
+                                break;
+                        }
+            }
         }
         catch (Exception er) {}
     }
@@ -172,11 +187,34 @@ public class ReversiFrame extends JFrame{
         buttons[3][3].setIcon(white);
         buttons[4][4].setIcon(white);
 
+        
+        /*
+        results = new JPanel();
+        results.setLayout(new GridBagLayout());
+        winbox = new JTextField("YOU WON!");
+        winbox.setVisible(true);
+        tiebox = new JTextField("YOU tied!");
+        tiebox.setVisible(true);
+        losebox = new JTextField("you lost.");
+        losebox.setVisible(true);
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        results.add(winbox,c);
+        results.add(tiebox,c);
+        results.add(losebox,c);
+        results.setVisible(true);
+        c.gridx = 0;
+        c.gridy = 11;
+        c.gridwidth = 8;
+        c.gridheight = 2;
+        add(results,c);*/
+
         for(int i = 0; i < 8; i++)
             for(int j = 0; j < 8; j++) {
                 game.add(buttons[i][j]);
             }
-
         c.gridx = 0;
         c.gridy = 0;
         c.gridwidth = 8;
