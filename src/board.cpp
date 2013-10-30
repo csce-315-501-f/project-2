@@ -378,13 +378,13 @@ int main () {
                 switch (gb.has_won(WHITE)) {
                 case 'w':
                     cout << "W" << endl; 
-                    return 0;
+                    continue;
                 case 't':
                     cout << "T" << endl;
-                    return 0;
+                    continue;
                 case 'l':
                     cout << "L" << endl;
-                    return 0;
+                    continue;
                 }
                 pair<int,int> m = gb.dark_turn();
                 
@@ -394,20 +394,40 @@ int main () {
                     continue;
                 }
                 cout << m.first << m.second << endl;
+
+                switch (gb.has_won(BLACK)) {
+                case 'w':
+                    cout << "L" << endl; 
+                    continue;
+                case 't':
+                    cout << "T" << endl;
+                    continue;
+                case 'l':
+                    cout << "W" << endl;
+                    continue;
+                } 
                 while (!gb.can_move(WHITE)) {
                     m = gb.dark_turn();
                     cout << m.first << m.second << endl;
                     switch (gb.has_won(BLACK)) {
                     case 'w':
                         cout << "L" << endl; 
-                        return 0;
+                        continue;
                     case 't':
                         cout << "T" << endl;
-                        return 0;
+                        continue;
                     case 'l':
                         cout << "W" << endl;
-                        return 0;
+                        continue;
                     }
+                }
+                switch (gb.has_won(WHITE)) {
+                case 'w':
+                    continue;
+                case 't':
+                    continue;
+                case 'l':
+                    continue;
                 }
                 cout << "G" << endl;
             }

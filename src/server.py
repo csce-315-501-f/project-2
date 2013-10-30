@@ -146,16 +146,16 @@ def setmode(tag, mode):
                             continue
                         if "W" in res:
                             game_states[tag].conn.send(";You lost!\n")
+                            game_states[tag].conn.send("\n"*7)
                             game_states[tag].conn.close()
-                            return 0
                         elif "T" in res:
                             game_states[tag].conn.send(";You tied!\n")
+                            game_states[tag].conn.send("\n"*7)
                             game_states[tag].conn.close()
-                            return 0
                         elif "L" in res:
                             game_states[tag].conn.send(";You won!\n")
+                            game_states[tag].conn.send("\n"*7)
                             game_states[tag].conn.close()
-                            return 0
                         else:
                             for i in res:
                                 if not "G" in i:
@@ -218,15 +218,15 @@ def domove(tag, move, conn):
     while resp != "" and not "G" in resp:
         if "W" in resp:
             sys.stdout.write("Game %d: Player win\n" % tag)
-            game_states[tag].end()
+            #game_states[tag].end()
             return "Win"
         if "T" in resp:
             sys.stdout.write("Game %d: Player tie\n" % tag)
-            game_states[tag].end()
+            #game_states[tag].end()
             return "Tie"
         if "L" in resp:
             sys.stdout.write("Game %d: Player lose\n" % tag)
-            game_states[tag].end()
+            #game_states[tag].end()
             return "Loss"
         move = chr(ord(resp[0]) + 17)
         move = move + resp[1]
@@ -301,6 +301,7 @@ def run(conn):
         hasMode = False
         hasDiff = False
         started = False
+        over = False
 
         sys.stdout.write("Creating game %d\n" % tag)
         global game_states
@@ -356,7 +357,7 @@ def run(conn):
                     continue
 
                 # EXECUTE A MOVE
-                elif started:
+                elif started and not over:
                     if (re.match(move_r,msg)):
                         res = domove(tag,msg,conn)
                         if "I" in res:
@@ -365,16 +366,16 @@ def run(conn):
                         conn.send("OK\n")
                         if "W" in res:
                             conn.send(";You won!\n")
-                            conn.close()
-                            return 0
+                            over = True
+                            continue
                         elif "T" in res:
                             conn.send(";You tied!\n")
-                            conn.close()
-                            return 0
+                            over = True
+                            continue
                         elif "L" in res:
                             conn.send(";You lost!\n")
-                            conn.close()
-                            return 0
+                            over = True
+                            continue
                     else:
                         conn.send("ILLEGAL\n;Unknown command\n")
                         continue

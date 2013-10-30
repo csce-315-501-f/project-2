@@ -49,12 +49,18 @@ public class ReversiFrame extends JFrame{
                 System.out.println(board[k]);
             }
             if (board[0].contains("won")) {
+                out.println("A1");
+                updateButtons();
                 JOptionPane.showMessageDialog(this,"YOU WON!");
             }
             else if (board[0].contains("lost")) {
+                out.println("A1");
+                updateButtons();
                 JOptionPane.showMessageDialog(this,"you lost");
             }
             else if (board[0].contains("tie")) {
+                out.println("A1");
+                updateButtons();
                 JOptionPane.showMessageDialog(this,"You tied!");
             }
             else {
