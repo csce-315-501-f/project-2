@@ -327,12 +327,13 @@ def run(conn):
 
                 # RDISPLAY
                 elif re.match(rdisplay_r,msg):
-					if started:
-						dordisplay(tag,conn)
-						continue
-					else:
-						conn.send(("."*8 + "\n")*8)
-						continue
+                    if started:
+                        dordisplay(tag,conn)
+                        continue
+                    else:
+                        conn.send(("."*8+"\n")*8)
+                        sys.stdout.write("Pregame rdisplay\n")
+                        continue
 
                 # DISPLAY
                 elif re.match(display_r,msg) and started:
